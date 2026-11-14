@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Finding } from "../src/domain/finding.js";
-import { formatJson, formatText } from "../src/reporters.js";
+import { formatJson, formatSarif, formatText } from "../src/reporters.js";
 
 const finding: Finding = {
   ruleId: "secret.demo",
@@ -26,5 +26,23 @@ describe("reporters", () => {
 
   it("reports a clean scan", () => {
     expect(formatText([])).toBe("CodeSentry found no issues.");
+  });
+
+  it("renders portable SARIF with rule and source locations", () => {
+    const report = JSON.parse(formatSarif([finding])) as {
+      version: string;
+      runs: Array<Record<string, unknown>>;
+    };
+
+    expect(report.version).toBe("2.1.0");
+    expect(report.runs[0]).toMatchObject({
+      tool: { driver: { name: "CodeSentry", rules: [{ id: "secret.demo" }] } },
+      results: [
+        {
+          level: "error",
+          locations: [{ physicalLocation: { artifactLocation: { uri: "src/app.ts" } } }],
+        },
+      ],
+    });
   });
 });
