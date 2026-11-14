@@ -121,4 +121,13 @@ export const secretRules: readonly ScanRule[] = [
     pattern: /^\s*FROM\s+[^\s#]+:latest\b/gim,
     appliesTo: isDockerfile,
   }),
+  patternRule({
+    id: "container.root-user",
+    title: "Container runs as root",
+    severity: "medium",
+    remediation:
+      "Create and select an unprivileged user before the final container stage whenever the workload does not require root.",
+    pattern: /^\s*USER\s+root\s*$/gim,
+    appliesTo: isDockerfile,
+  }),
 ];

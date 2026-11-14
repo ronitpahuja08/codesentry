@@ -52,4 +52,15 @@ describe("secret scanner", () => {
     expect(dockerfile.map((finding) => finding.ruleId)).toContain("container.mutable-image-tag");
     expect(markdown).toHaveLength(0);
   });
+
+  it("flags Dockerfiles that explicitly select the root user", () => {
+    const findings = scanText({
+      path: "Dockerfile",
+      content: 'FROM node:24-bookworm\nUSER root\nCMD ["node", "app.js"]\n',
+    });
+
+    expect(findings).toEqual(
+      expect.arrayContaining([expect.objectContaining({ ruleId: "container.root-user", line: 2 })]),
+    );
+  });
 });
