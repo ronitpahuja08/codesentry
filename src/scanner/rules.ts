@@ -8,6 +8,7 @@ interface PatternRuleOptions {
   readonly pattern: RegExp;
   readonly valueGroup?: number;
   readonly reject?: (value: string) => boolean;
+  readonly appliesTo?: (source: SourceFile) => boolean;
 }
 
 const placeholders = [
@@ -39,6 +40,9 @@ function patternRule(options: PatternRuleOptions): ScanRule {
     severity: options.severity,
     remediation: options.remediation,
     find(source: SourceFile) {
+      if (options.appliesTo && !options.appliesTo(source)) {
+        return [];
+      }
       const flags = options.pattern.flags.includes("g")
         ? options.pattern.flags
         : `${options.pattern.flags}g`;
@@ -62,6 +66,10 @@ function patternRule(options: PatternRuleOptions): ScanRule {
 
 const rotateCredential =
   "Remove the credential from history, rotate it with the provider, and load the replacement from a secret manager.";
+
+function isDockerfile(source: SourceFile): boolean {
+  return source.path.split(/[\\/]/).at(-1)?.toLowerCase() === "dockerfile";
+}
 
 export const secretRules: readonly ScanRule[] = [
   patternRule({
@@ -103,5 +111,14 @@ export const secretRules: readonly ScanRule[] = [
       /(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\s*[:=]\s*["']([^"'\r\n]{8,})["']/gi,
     valueGroup: 1,
     reject: isPlaceholder,
+  }),
+  patternRule({
+    id: "container.mutable-image-tag",
+    title: "Mutable container image tag",
+    severity: "medium",
+    remediation:
+      "Pin the base image to an immutable version or digest so builds remain reproducible.",
+    pattern: /^\s*FROM\s+[^\s#]+:latest\b/gim,
+    appliesTo: isDockerfile,
   }),
 ];

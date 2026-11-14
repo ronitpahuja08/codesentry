@@ -38,4 +38,18 @@ describe("secret scanner", () => {
 
     expect(findings.map((finding) => finding.line)).toEqual([1, 2]);
   });
+
+  it("flags mutable image tags only in Dockerfiles", () => {
+    const dockerfile = scanText({
+      path: "containers/Dockerfile",
+      content: "FROM node:latest\nRUN node --version\n",
+    });
+    const markdown = scanText({
+      path: "docs/containers.md",
+      content: "Use FROM node:latest only for a local experiment.",
+    });
+
+    expect(dockerfile.map((finding) => finding.ruleId)).toContain("container.mutable-image-tag");
+    expect(markdown).toHaveLength(0);
+  });
 });
