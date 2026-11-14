@@ -15,7 +15,7 @@ Security scanners are most useful when developers can understand why something w
 - high-confidence secret patterns for common credential formats
 - generic credential assignment checks with placeholder filtering
 - normalized finding fingerprints for future baselines
-- human-readable and JSON CLI output
+- human-readable, JSON, and SARIF CLI output
 - deterministic offline tests
 
 ## Planned architecture
@@ -54,7 +54,13 @@ After building:
 ```bash
 node dist/cli.js scan .
 node dist/cli.js scan . --format json
+node dist/cli.js scan . --format sarif > codesentry.sarif
 ```
+
+Use the SARIF format when a CI platform or code-scanning service accepts SARIF
+uploads. CodeSentry preserves the rule identifier, severity, remediation, and
+precise source location in that format. The scanner still returns a non-zero
+exit code when it finds issues, regardless of output format.
 
 ## License
 
