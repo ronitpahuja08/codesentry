@@ -141,7 +141,7 @@ export const secretRules: readonly ScanRule[] = [
     severity: "medium",
     remediation:
       "Pin third-party GitHub Actions to a full commit SHA and document the reviewed release.",
-    pattern: /^\s*uses:\s*[^\s@]+@(?:v?\d+(?:\.\d+){0,2}|main|master)\b/gim,
+    pattern: /^\s*(?:-\s*)?uses:\s*[^\s@]+@(?:v?\d+(?:\.\d+){0,2}|main|master)\b/gim,
     appliesTo: isGitHubWorkflow,
   }),
 ];
