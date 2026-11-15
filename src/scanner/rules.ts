@@ -71,6 +71,11 @@ function isDockerfile(source: SourceFile): boolean {
   return source.path.split(/[\\/]/).at(-1)?.toLowerCase() === "dockerfile";
 }
 
+function isGitHubWorkflow(source: SourceFile): boolean {
+  const path = source.path.replaceAll("\\", "/").toLowerCase();
+  return path.startsWith(".github/workflows/") && /\.ya?ml$/.test(path);
+}
+
 export const secretRules: readonly ScanRule[] = [
   patternRule({
     id: "secret.github-token",
@@ -129,5 +134,14 @@ export const secretRules: readonly ScanRule[] = [
       "Create and select an unprivileged user before the final container stage whenever the workload does not require root.",
     pattern: /^\s*USER\s+root\s*$/gim,
     appliesTo: isDockerfile,
+  }),
+  patternRule({
+    id: "workflow.unpinned-action",
+    title: "GitHub Action is not pinned to an immutable commit",
+    severity: "medium",
+    remediation:
+      "Pin third-party GitHub Actions to a full commit SHA and document the reviewed release.",
+    pattern: /^\s*uses:\s*[^\s@]+@(?:v?\d+(?:\.\d+){0,2}|main|master)\b/gim,
+    appliesTo: isGitHubWorkflow,
   }),
 ];

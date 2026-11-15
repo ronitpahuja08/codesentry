@@ -63,4 +63,18 @@ describe("secret scanner", () => {
       expect.arrayContaining([expect.objectContaining({ ruleId: "container.root-user", line: 2 })]),
     );
   });
+
+  it("flags mutable action tags only inside GitHub workflow files", () => {
+    const workflow = scanText({
+      path: ".github/workflows/ci.yml",
+      content: "steps:\n  - uses: actions/checkout@v4\n",
+    });
+    const document = scanText({
+      path: "docs/actions.md",
+      content: "Use actions/checkout@v4 in a workflow.",
+    });
+
+    expect(workflow.map((finding) => finding.ruleId)).toContain("workflow.unpinned-action");
+    expect(document).toHaveLength(0);
+  });
 });
