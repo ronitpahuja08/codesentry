@@ -13,6 +13,8 @@ Security scanners are most useful when developers can understand why something w
 - recursive repository walking with ignored build and version-control directories
 - text-file detection and file-size limits
 - high-confidence secret patterns for common credential formats
+- Dockerfile checks for mutable images and explicit root users
+- GitHub Actions checks for mutable action tags
 - generic credential assignment checks with placeholder filtering
 - normalized finding fingerprints for future baselines
 - human-readable, JSON, and SARIF CLI output
@@ -61,6 +63,13 @@ Use the SARIF format when a CI platform or code-scanning service accepts SARIF
 uploads. CodeSentry preserves the rule identifier, severity, remediation, and
 precise source location in that format. The scanner still returns a non-zero
 exit code when it finds issues, regardless of output format.
+
+## CI
+
+Every push and pull request runs formatting, TypeScript checks, tests, and a
+production build through the pinned GitHub Actions workflow. The workflow uses
+read-only repository permissions and is designed to validate the scanner rather
+than grant it credentials or repository write access.
 
 ## License
 
