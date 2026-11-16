@@ -144,4 +144,13 @@ export const secretRules: readonly ScanRule[] = [
     pattern: /^\s*(?:-\s*)?uses:\s*[^\s@]+@(?:v?\d+(?:\.\d+){0,2}|main|master)\b/gim,
     appliesTo: isGitHubWorkflow,
   }),
+  patternRule({
+    id: "workflow.pull-request-target",
+    title: "Workflow uses pull_request_target",
+    severity: "high",
+    remediation:
+      "Use pull_request for untrusted pull-request code, or keep pull_request_target jobs read-only and avoid checking out contributor-controlled refs.",
+    pattern: /^\s*pull_request_target\s*:/gim,
+    appliesTo: isGitHubWorkflow,
+  }),
 ];

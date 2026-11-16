@@ -77,4 +77,26 @@ describe("secret scanner", () => {
     expect(workflow.map((finding) => finding.ruleId)).toContain("workflow.unpinned-action");
     expect(document).toHaveLength(0);
   });
+
+  it("flags pull_request_target triggers only inside GitHub workflow files", () => {
+    const workflow = scanText({
+      path: ".github/workflows/privileged.yml",
+      content: "on:\n  pull_request_target:\n    types: [opened]\n",
+    });
+    const document = scanText({
+      path: "docs/workflow-security.md",
+      content: "Avoid pull_request_target: unless a workflow needs it.",
+    });
+
+    expect(workflow).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: "workflow.pull-request-target",
+          line: 2,
+          severity: "high",
+        }),
+      ]),
+    );
+    expect(document).toHaveLength(0);
+  });
 });
