@@ -99,4 +99,21 @@ describe("secret scanner", () => {
     );
     expect(document).toHaveLength(0);
   });
+
+  it("flags workflows that grant write-all permissions", () => {
+    const workflow = scanText({
+      path: ".github/workflows/release.yaml",
+      content: "name: Release\npermissions: write-all\njobs: {}\n",
+    });
+
+    expect(workflow).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: "workflow.write-all-permissions",
+          line: 2,
+          severity: "high",
+        }),
+      ]),
+    );
+  });
 });

@@ -153,4 +153,13 @@ export const secretRules: readonly ScanRule[] = [
     pattern: /^\s*pull_request_target\s*:/gim,
     appliesTo: isGitHubWorkflow,
   }),
+  patternRule({
+    id: "workflow.write-all-permissions",
+    title: "Workflow grants write-all permissions",
+    severity: "high",
+    remediation:
+      "Replace write-all with the smallest explicit permission set required by each job.",
+    pattern: /^\s*permissions:\s*write-all\s*$/gim,
+    appliesTo: isGitHubWorkflow,
+  }),
 ];
